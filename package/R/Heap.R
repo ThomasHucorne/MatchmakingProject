@@ -32,53 +32,88 @@
 #'
 #' @export
 
-best_gs_heap <- function(men_prefs, women_prefs){
+best_gs_heap <- function(men_prefs, women_prefs) {
+  # Convert names to numeric indices for manipulation
+  men_names   <- names(men_prefs)
+  women_names <- names(women_prefs)
+
+  men_index   <- setNames(seq_along(men_names), men_names)
+  women_index <- setNames(seq_along(women_names), women_names)
+
   n <- length(men_prefs)
-  next_women <- rep(1, n)
+
+  # Convert preference lists to numeric indices
+  men_pref_num <- lapply(men_prefs, function(v) women_index[v])
+  women_pref_num <- lapply(women_prefs, function(v) men_index[v])
+
+  # Inverted preferences for women (ranking tables)
+  women_rank <- lapply(women_pref_num, function(v) {
+    ranks <- seq_along(v)
+    names(ranks) <- v
+    ranks
+  })
+
+  # Track: next woman each man will propose to
+  next_choice <- rep(1, n)
+
+  # Matching: matching[h] = woman index
   matching <- rep(NA, n)
 
-  # Inversion of feminine preferences to compare quicker
-  rank_women <- lapply(1:n, function(f)
-    order(match(1:n, women_prefs[[f]])))
-
-  # Heap global : data.frame simulating a heap (sort on priority)
+  # Priority queue simulated by a data.frame
   heap <- data.frame(
-    h = 1:n,
-    f = sapply(1:n, function(i) men_prefs[[i]][1]),
-    prio = 1
+    man   = seq_len(n),
+    woman = sapply(seq_len(n), function(i) men_pref_num[[i]][1]),
+    prio  = 1
   )
 
   while (nrow(heap) > 0) {
-    # Extract the suggestion that is the priority
+    # Extract min priority
     idx <- which.min(heap$prio)
-    prop <- heap[idx,]; heap <- heap[-idx,]
-    h <- prop$h
-    f <- prop$f
+    prop <- heap[idx, ]
+    heap <- heap[-idx, ]
 
+    h <- prop$man      # man index
+    f <- prop$woman    # woman index
+
+    # Current fiancé of woman f
     current <- which(matching == f)
 
     if (length(current) == 0) {
+      # Free → accept
       matching[h] <- f
     } else {
-      pire <- current[which.max(rank_women[[f]][current])]
-      if (rank_women[[f]][h] < rank_women[[f]][pire]) {
+      # Woman compares preferences
+      current <- current[1]
+      rank_current <- women_rank[[f]][ as.character(current) ]
+      rank_new     <- women_rank[[f]][ as.character(h) ]
+
+      if (rank_new < rank_current) {
+        # Replace fiancé
         matching[h] <- f
-        matching[pire] <- NA
-        next_women[pire] <- next_women[pire] + 1
-        if (next_women[pire] <= length(men_prefs[[pire]])) {
-          f2 <- men_prefs[[pire]][next_women[pire]]
-          heap <- rbind(heap, data.frame(h=pire, f=f2, prio=next_women[pire]))
+        matching[current] <- NA
+
+        next_choice[current] <- next_choice[current] + 1
+        if (next_choice[current] <= length(men_pref_num[[current]])) {
+          f2 <- men_pref_num[[current]][ next_choice[current] ]
+          heap <- rbind(heap, data.frame(man=current, woman=f2, prio=next_choice[current]))
         }
       } else {
-        next_women[h] <- next_women[h] + 1
-        if (next_women[h] <= length(men_prefs[[h]])) {
-          f2 <- men_prefs[[h]][next_women[h]]
-          heap <- rbind(heap, data.frame(h=h, f=f2, prio=next_women[h]))
+        # Rejected → propose to next woman
+        next_choice[h] <- next_choice[h] + 1
+        if (next_choice[h] <= length(men_pref_num[[h]])) {
+          f2 <- men_pref_num[[h]][ next_choice[h] ]
+          heap <- rbind(heap, data.frame(man=h, woman=f2, prio=next_choice[h]))
         }
       }
     }
   }
 
-  data.frame(Man = names(men_prefs), Woman = names(women_prefs)[matching])
+  # Convert numeric matching back to names
+  data.frame(
+    Man   = men_names,
+    Woman = women_names[ matching ],
+    stringsAsFactors = FALSE
+  )
 }
+
 
