@@ -1,11 +1,13 @@
 Package: package
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Matchmaking Project
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: CAPIEU Valentin, HUCORNE Thomas, TOURNIER Valentin
+Maintainer: 
+Description: Implements multiples algorithms on a problem of stable matchmaking between two sets men and women, 
+with first a naive implementation of Gale-Shapley Algorithm then an
+heap-based, best-first variant of the Gale-Shapley algorithm and 
+finally a concrete case of the matchmaking in the field of health.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
