@@ -70,6 +70,7 @@ best_gs_heap <- function(men_prefs, women_prefs) {
     # Extract min priority
     idx <- which.min(heap$prio)
     prop <- heap[idx, ]
+    # Deleting the proposition of matching from heap
     heap <- heap[-idx, ]
 
     h <- prop$man      # man index
