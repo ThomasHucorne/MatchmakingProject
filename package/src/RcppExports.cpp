@@ -10,6 +10,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// gale_shapley_cpp
+DataFrame gale_shapley_cpp(List men_prefs, List women_prefs);
+RcppExport SEXP _package_gale_shapley_cpp(SEXP men_prefsSEXP, SEXP women_prefsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type men_prefs(men_prefsSEXP);
+    Rcpp::traits::input_parameter< List >::type women_prefs(women_prefsSEXP);
+    rcpp_result_gen = Rcpp::wrap(gale_shapley_cpp(men_prefs, women_prefs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_hello
 List rcpp_hello();
 RcppExport SEXP _package_rcpp_hello() {
@@ -22,6 +34,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_package_gale_shapley_cpp", (DL_FUNC) &_package_gale_shapley_cpp, 2},
     {"_package_rcpp_hello", (DL_FUNC) &_package_rcpp_hello, 0},
     {NULL, NULL, 0}
 };
