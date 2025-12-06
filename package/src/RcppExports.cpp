@@ -11,13 +11,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // best_gs_heap_cpp
-Rcpp::DataFrame best_gs_heap_cpp(Rcpp::List men_prefs, Rcpp::List women_prefs);
+DataFrame best_gs_heap_cpp(List men_prefs, List women_prefs);
 RcppExport SEXP _package_best_gs_heap_cpp(SEXP men_prefsSEXP, SEXP women_prefsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type men_prefs(men_prefsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type women_prefs(women_prefsSEXP);
+    Rcpp::traits::input_parameter< List >::type men_prefs(men_prefsSEXP);
+    Rcpp::traits::input_parameter< List >::type women_prefs(women_prefsSEXP);
     rcpp_result_gen = Rcpp::wrap(best_gs_heap_cpp(men_prefs, women_prefs));
     return rcpp_result_gen;
 END_RCPP
