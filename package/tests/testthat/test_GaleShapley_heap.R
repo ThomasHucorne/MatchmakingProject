@@ -46,3 +46,63 @@ test_that("Best-First Gale-Shapley handles already matched top choices", {
   expect_true(all(matches_3$Woman %in% c("X", "Y")))
   expect_true(all(matches_3$Man %in% c("A", "B")))
 })
+
+test_that("C++ Gale–Shapley handles fully opposite preferences", {
+  men_prefs_4 <- list(
+    A = c("X", "Y", "Z"),
+    B = c("X", "Y", "Z"),
+    C = c("X", "Y", "Z")
+  )
+
+  women_prefs_4 <- list(
+    X = c("C", "B", "A"),
+    Y = c("C", "A", "B"),
+    Z = c("B", "A", "C")
+  )
+
+  matches_4 <- best_gs_heap(men_prefs_4, women_prefs_4)
+
+  expect_equal(nrow(matches_4), 3)
+  expect_equal(length(unique(matches_4$Man)), 3)
+  expect_equal(length(unique(matches_4$Woman)), 3)
+})
+
+test_that("C++ Gale–Shapley handles cyclic preference structures", {
+  men_prefs_5 <- list(
+    A = c("X", "Y", "Z"),
+    B = c("Y", "Z", "X"),
+    C = c("Z", "X", "Y")
+  )
+
+  women_prefs_5 <- list(
+    X = c("B", "C", "A"),
+    Y = c("C", "A", "B"),
+    Z = c("A", "B", "C")
+  )
+
+  matches_5 <- best_gs_heap(men_prefs_5, women_prefs_5)
+
+  expect_equal(nrow(matches_5), 3)
+  expect_equal(length(unique(matches_5$Man)), 3)
+  expect_equal(length(unique(matches_5$Woman)), 3)
+})
+
+test_that("C++ Gale–Shapley handles nearly identical preferences", {
+  men_prefs_6 <- list(
+    A = c("Y", "X", "Z"),
+    B = c("Y", "Z", "X"),
+    C = c("Y", "X", "Z")
+  )
+
+  women_prefs_6 <- list(
+    X = c("A", "B", "C"),
+    Y = c("A", "C", "B"),
+    Z = c("C", "A", "B")
+  )
+
+  matches_6 <- best_gs_heap(men_prefs_6, women_prefs_6)
+
+  expect_equal(nrow(matches_6), 3)
+  expect_equal(length(unique(matches_6$Man)), 3)
+  expect_equal(length(unique(matches_6$Woman)), 3)
+})

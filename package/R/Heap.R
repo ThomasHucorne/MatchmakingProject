@@ -80,7 +80,7 @@ best_gs_heap <- function(men_prefs, women_prefs) {
     current <- which(matching == f)
 
     if (length(current) == 0) {
-      # Free → accept
+      # Free -> accept
       matching[h] <- f
     } else {
       # Woman compares preferences
@@ -99,7 +99,7 @@ best_gs_heap <- function(men_prefs, women_prefs) {
           heap <- rbind(heap, data.frame(man=current, woman=f2, prio=next_choice[current]))
         }
       } else {
-        # Rejected → propose to next woman
+        # Rejected -> propose to next woman
         next_choice[h] <- next_choice[h] + 1
         if (next_choice[h] <= length(men_pref_num[[h]])) {
           f2 <- men_pref_num[[h]][ next_choice[h] ]
