@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // best_gs_heap_cpp
 DataFrame best_gs_heap_cpp(List men_prefs, List women_prefs);
-RcppExport SEXP _package_best_gs_heap_cpp(SEXP men_prefsSEXP, SEXP women_prefsSEXP) {
+RcppExport SEXP _CHTpackage_best_gs_heap_cpp(SEXP men_prefsSEXP, SEXP women_prefsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -24,7 +24,7 @@ END_RCPP
 }
 // rcpp_hello
 List rcpp_hello();
-RcppExport SEXP _package_rcpp_hello() {
+RcppExport SEXP _CHTpackage_rcpp_hello() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,12 +34,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_package_best_gs_heap_cpp", (DL_FUNC) &_package_best_gs_heap_cpp, 2},
-    {"_package_rcpp_hello", (DL_FUNC) &_package_rcpp_hello, 0},
+    {"_CHTpackage_best_gs_heap_cpp", (DL_FUNC) &_CHTpackage_best_gs_heap_cpp, 2},
+    {"_CHTpackage_rcpp_hello", (DL_FUNC) &_CHTpackage_rcpp_hello, 0},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_package(DllInfo *dll) {
+RcppExport void R_init_CHTpackage(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

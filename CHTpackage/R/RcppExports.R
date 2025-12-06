@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 best_gs_heap_cpp <- function(men_prefs, women_prefs) {
-    .Call(`_package_best_gs_heap_cpp`, men_prefs, women_prefs)
+    .Call(`_CHTpackage_best_gs_heap_cpp`, men_prefs, women_prefs)
 }
 
 rcpp_hello <- function() {
-    .Call(`_package_rcpp_hello`)
+    .Call(`_CHTpackage_rcpp_hello`)
 }
 

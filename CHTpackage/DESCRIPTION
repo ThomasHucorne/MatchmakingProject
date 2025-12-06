@@ -1,0 +1,14 @@
+Package: CHTpackage
+Type: Package
+Title: Matchmaking Project
+Version: 0.1.0
+Authors: CAPIEU Valentin, HUCORNE Thomas, TOURNIER Valentin
+Description: Implements multiple algorithms for solving the stable matchmaking 
+    problem between two sets (men and women). Includes a naive version of the 
+    Gale-Shapley algorithm, a heap-based best-first variant, and an applied 
+    health-related matchmaking model.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 1.0.13)
+LinkingTo: Rcpp
