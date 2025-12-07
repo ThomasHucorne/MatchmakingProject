@@ -1,9 +1,9 @@
-#' Best-First Gale-Shapley Stable Matching Algorithm with Heap
+#' Best-First Gale-Shapley Stable Matching Algorithm with bucket
 #'
 #' @description
-#' Implements a heap-based, best-first variant of the Gale-Shapley algorithm
+#' Implements a bucket-based, best-first variant of the Gale-Shapley algorithm
 #' for computing a stable matching between two sets: men and women.
-#' Unlike the classic Gale-Shapley, this version uses a priority queue (heap)
+#' Unlike the classic Gale-Shapley, this version uses a priority vector/list (bucket)
 #' to process proposals in order of preference, improving efficiency and
 #' allowing better control over the order in which matches are considered.
 #'
@@ -25,22 +25,22 @@
 #'   Y = c("A", "B", "C"),
 #'   Z = c("A", "C", "B")
 #' )
-#' best_gs_heap(men_prefs, women_prefs)
+#' best_gs_bucket(men_prefs, women_prefs)
 #'
 #' @seealso
 #' \link{gale_shapley} for the classic iterative Gale-Shapley algorithm.
 #'
 #' @export
 
-best_gs_heap <- function(men_prefs, women_prefs) {
+best_gs_bucket <- function(men_prefs, women_prefs) {
   # Convert names to numeric indices for manipulation
   men_names   <- names(men_prefs)
   women_names <- names(women_prefs)
 
+  n <- length(men_prefs)
+
   men_index   <- setNames(seq_along(men_names), men_names)
   women_index <- setNames(seq_along(women_names), women_names)
-
-  n <- length(men_prefs)
 
   # Convert preference lists to numeric indices
   men_pref_num <- lapply(men_prefs, function(v) women_index[v])
@@ -55,66 +55,69 @@ best_gs_heap <- function(men_prefs, women_prefs) {
 
   # Track: next woman each man will propose to
   next_choice <- rep(1, n)
-
   # Matching: matching[h] = woman index
   matching <- rep(NA, n)
 
-  # Priority queue simulated by a data.frame
-  heap <- data.frame(
-    man   = seq_len(n),
-    woman = sapply(seq_len(n), function(i) men_pref_num[[i]][1]),
-    prio  = 1
-  )
+  # Bucket queue
+  buckets <- vector("list", n)
 
-  while (nrow(heap) > 0) {
-    # Extract min priority
-    idx <- which.min(heap$prio)
-    prop <- heap[idx, ]
-    # Deleting the proposition of matching from heap
-    heap <- heap[-idx, ]
+  # Initialize with priority = 1
+  for (h in seq_len(n)) {
+    f <- men_pref_num[[h]][1]
+    buckets[[1]] <- append(buckets[[1]], list(c(h,f)))
+  }
 
-    h <- prop$man      # man index
-    f <- prop$woman    # woman index
+  # While there is at least one non-empty bucket
+  while (any(lengths(buckets) > 0)) {
 
-    # Current fiancé of woman f
-    current <- which(matching == f)
+    # Find smallest priority bucket that has proposals
+    p <- match(TRUE, lengths(buckets) > 0)
 
-    if (length(current) == 0) {
-      # Free -> accept
+    # Pop one proposal
+    prop <- buckets[[p]][[1]]
+    buckets[[p]] <- buckets[[p]][-1]
+
+    h <- prop[1]
+    f <- prop[2]
+
+    # Find current fiancé of f
+    current <- match(f, matching)
+
+    if (is.na(current)) {
+
       matching[h] <- f
+
     } else {
-      # Woman compares preferences
-      current <- current[1]
-      rank_current <- women_rank[[f]][ as.character(current) ]
-      rank_new     <- women_rank[[f]][ as.character(h) ]
+
+      rank_current <- women_rank[[f]][as.character(current)]
+      rank_new     <- women_rank[[f]][as.character(h)]
 
       if (rank_new < rank_current) {
-        # Replace fiancé
+        # Woman prefers new man
         matching[h] <- f
         matching[current] <- NA
 
-        next_choice[current] <- next_choice[current] + 1
+        next_choice[current] <- next_choice[current] + 1L
         if (next_choice[current] <= length(men_pref_num[[current]])) {
-          f2 <- men_pref_num[[current]][ next_choice[current] ]
-          heap <- rbind(heap, data.frame(man=current, woman=f2, prio=next_choice[current]))
+          f2 <- men_pref_num[[current]][next_choice[current]]
+          buckets[[next_choice[current]]] <- append(buckets[[next_choice[current]]], list(c(current,f2)))
         }
+
       } else {
-        # Rejected -> propose to next woman
-        next_choice[h] <- next_choice[h] + 1
+        # Man rejected -> propose to next woman
+        next_choice[h] <- next_choice[h] + 1L
         if (next_choice[h] <= length(men_pref_num[[h]])) {
-          f2 <- men_pref_num[[h]][ next_choice[h] ]
-          heap <- rbind(heap, data.frame(man=h, woman=f2, prio=next_choice[h]))
+          f2 <- men_pref_num[[h]][next_choice[h]]
+          buckets[[next_choice[h]]] <- append(buckets[[next_choice[h]]], list(c(h,f2)))
         }
       }
     }
   }
 
-  # Convert numeric matching back to names
   data.frame(
-    Man   = men_names,
-    Woman = women_names[ matching ],
+    Man = men_names,
+    Woman = women_names[matching],
     stringsAsFactors = FALSE
   )
 }
-
 
