@@ -1,0 +1,56 @@
+---
+title: "Project: Stable Matchmaking Algorithms"
+author: "CAPIEU Valentin, HUCORNE Thomas & TOURNIER Valentin"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Installing and Loading the package
+```{r}
+if (!requireNamespace("CHTpackage", quietly = TRUE)) {
+if (!requireNamespace("remotes", quietly = TRUE)) {
+install.packages("remotes")
+}
+remotes::install_github("ThomasHucorne/MatchmakingProject")
+}
+
+library(CHTpackage)
+
+```
+
+# Problem description
+Implémente plusieurs algorithmes pour résoudre le problème de matchmaking stable entre deux ensembles (hommes et femmes). Comprend une version naïve de l’algorithme de Gale-Shapley, une variante en choissisant les meilleurs d'abord (en prenant en compte les premiers choix des hommes comme base) basée sur le tas. Enfin un algorithme partant de celui de Gale-Sahpley avec un tas appliqué au domaine de la santé, avec ainsi des contraintes dans l'algorithme.
+
+# Defining Preferences
+```{r}
+
+```
+
+# Algorithm 1 - Naive Gale-Shapley
+```{r}
+
+```
+
+# Algorithm 2 - Gale-Shapley with Heap
+```{r}
+
+```
+
+# Algorithm 3 - Gale-Shapley with constraints in health-related problem
+```{r}
+
+```
+
+# Complexity Comparison
+```{r}
+
+```
+
