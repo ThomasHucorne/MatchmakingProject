@@ -3,15 +3,15 @@
 # Livrable
 Rendre un Rmd, compilable en pdf ou html avec la méthode:
 ```
-if (!requireNamespace("M2algorithmique", quietly = TRUE)) 
-{
-  if (!requireNamespace("remotes", quietly = TRUE))
-    install.packages("remotes")
-  remotes::install_github("vrunge/M2algorithmique")
+if (!requireNamespace("CHTpackage", quietly = TRUE)) {
+if (!requireNamespace("remotes", quietly = TRUE)) {
+install.packages("remotes")
+}
+remotes::install_github("ThomasHucorne/MatchmakingProject")
 }
 
 # Charge le package
-library(M2algorithmique)
+library(CHTpackage)
 ```
 Il faut avoir le package déposé sur GITHUB ! (ou autre)
 
@@ -19,7 +19,7 @@ Il faut avoir le package déposé sur GITHUB ! (ou autre)
 Matchmaking Stable Matching
 Avec 3 méthodes
 (i) Le cas greedy O(n^2), explication de  l'approche avec préférence "homme ou femme".
-(ii) Le cas d'utilisation d'une heap dans ce problème. Quel tyde de structure c'est, comment elle réduit la complexité?
+(ii) Le cas d'utilisation d'un bucket dans ce problème. Quel tyde de structure c'est, comment ça réduit la complexité?
 (iii) Exemple en santé, type hôpitaux en essayant d'être le plus réaliste possible. Quelles contraintes à rajouter / considérer pour le problème réel.
 
 Les algorithmes du i) et du ii) seront en R et en Rcpp pour le ii) et iii).

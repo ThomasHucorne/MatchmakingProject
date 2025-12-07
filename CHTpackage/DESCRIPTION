@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors: CAPIEU Valentin, HUCORNE Thomas, TOURNIER Valentin
 Description: Implements multiple algorithms for solving the stable matchmaking 
     problem between two sets (men and women). Includes a naive version of the 
-    Gale-Shapley algorithm, a heap-based best-first variant, and an applied 
+    Gale-Shapley algorithm, a bucket-based best-first variant, and an applied 
     health-related matchmaking model.
 License: GPL-3
 Encoding: UTF-8

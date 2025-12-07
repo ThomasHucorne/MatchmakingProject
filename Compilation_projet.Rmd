@@ -27,7 +27,7 @@ library(CHTpackage)
 ```
 
 # Problem description
-Implémente plusieurs algorithmes pour résoudre le problème de matchmaking stable entre deux ensembles (hommes et femmes). Comprend une version naïve de l’algorithme de Gale-Shapley, une variante en choissisant les meilleurs d'abord (en prenant en compte les premiers choix des hommes comme base) basée sur le tas. Enfin un algorithme partant de celui de Gale-Sahpley avec un tas appliqué au domaine de la santé, avec ainsi des contraintes dans l'algorithme.
+Implémente plusieurs algorithmes pour résoudre le problème de matchmaking stable entre deux ensembles (hommes et femmes). Comprend une version naïve de l’algorithme de Gale-Shapley, une variante en choissisant les meilleurs d'abord (en prenant en compte les premiers choix des hommes comme base) basée sur une liste/ vectuer. Enfin un algorithme partant de celui de Gale-Sahpley avec un tas appliqué au domaine de la santé, avec ainsi des contraintes dans l'algorithme.
 
 # Defining Preferences
 ```{r}
@@ -39,7 +39,7 @@ Implémente plusieurs algorithmes pour résoudre le problème de matchmaking sta
 
 ```
 
-# Algorithm 2 - Gale-Shapley with Heap
+# Algorithm 2 - Gale-Shapley with Bucket
 ```{r}
 
 ```
