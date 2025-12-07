@@ -154,9 +154,8 @@ ggplot(df, aes(x = n)) +
 ### Theoritical Complexity
 
 Partie à faire quand on aura la fonction finale 
-
 ```{r}
-best_gs_bucket_fast <- function(men_prefs, women_prefs) {
+best_gs_bucket <- function(men_prefs, women_prefs) {
   men_names   <- names(men_prefs)
   women_names <- names(women_prefs)
   n <- length(men_prefs)
@@ -250,7 +249,7 @@ test_gs_bucket_time <- function(n) {
   names(women_prefs) <- women
 
   time <- system.time({
-    best_gs_bucket_fast(men_prefs, women_prefs)
+    best_gs_bucket(men_prefs, women_prefs)
   })
   return(time["elapsed"])
 }
@@ -269,18 +268,21 @@ times <- sapply(sizes, test_gs_bucket_time)
 df <- data.frame(
   n = sizes,
   time = times,
-  n_squared = (sizes^2) / max(sizes^2) * max(times) # scaled for comparison
+  n_squared = (sizes^2) / max(sizes^2) * max(times),          # scaled n²
+  n_cubed  = (sizes^3) / max(sizes^3) * max(times),
+  n_log_n  = (sizes * log(sizes)) / max(sizes * log(sizes)) * max(times)  # scaled n log n
 )
 ```
 
 ```{r}
-# Plot measured time and n^2 curve
+# Plot measured time and n^2, n^3 curve
 ggplot(df, aes(x = n)) +
   geom_line(aes(y = time), size = 1.2, color = 'red') +
   geom_point(aes(y = time), size = 2, color = 'red') +
   geom_line(aes(y = n_squared), linetype = "dashed", size = 1, color = 'green') +
+  geom_line(aes(y = n_cubed), linetype = "dotdash", size = 1, color = 'blue') +
   labs(
-    title = "Temporal Complexity of Gale–Shapley bucket (Empirical vs n²)",
+    title = "Time Complexity of Gale–Shapley bucket (Empirical vs n^2 & n^3)",
     x = "n (number of men/women)",
     y = "Execution time (seconds)"
   ) +
@@ -294,6 +296,7 @@ ggplot(df, aes(x = n)) +
   geom_line(aes(y = time), size = 1.2, color = 'red') +
   geom_point(aes(y = time), size = 2, color = 'red') +
   geom_line(aes(y = n_squared), linetype = "dashed", size = 1, color = 'green') +
+  geom_line(aes(y = n_cubed), linetype = "dotdash", size = 1, color = 'blue') +
   labs(
     title = "Gale–Shapley with bucket Complexity (Log–Log Scale)",
     x = "log(n)",
