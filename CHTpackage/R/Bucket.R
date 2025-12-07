@@ -1,9 +1,9 @@
-#' Best-First Gale-Shapley Stable Matching Algorithm with Heap
+#' Best-First Gale-Shapley Stable Matching Algorithm with bucket
 #'
 #' @description
-#' Implements a heap-based, best-first variant of the Gale-Shapley algorithm
+#' Implements a bucket-based, best-first variant of the Gale-Shapley algorithm
 #' for computing a stable matching between two sets: men and women.
-#' Unlike the classic Gale-Shapley, this version uses a priority queue (heap)
+#' Unlike the classic Gale-Shapley, this version uses a priority vector/list (bucket)
 #' to process proposals in order of preference, improving efficiency and
 #' allowing better control over the order in which matches are considered.
 #'
@@ -25,7 +25,7 @@
 #'   Y = c("A", "B", "C"),
 #'   Z = c("A", "C", "B")
 #' )
-#' best_gs_heap(men_prefs, women_prefs)
+#' best_gs_bucket(men_prefs, women_prefs)
 #'
 #' @seealso
 #' \link{gale_shapley} for the classic iterative Gale-Shapley algorithm.
