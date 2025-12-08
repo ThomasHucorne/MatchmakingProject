@@ -5,6 +5,18 @@ best_gs_heap_cpp <- function(men_prefs, women_prefs) {
     .Call(`_CHTpackage_best_gs_heap_cpp`, men_prefs, women_prefs)
 }
 
+can_receive_cpp <- function(donor_type, recipient_type, compatibility_table, blood_types) {
+    .Call(`_CHTpackage_can_receive_cpp`, donor_type, recipient_type, compatibility_table, blood_types)
+}
+
+build_compatibility_graph_cpp <- function(donors, receivers, data, compatibility_table, blood_types) {
+    .Call(`_CHTpackage_build_compatibility_graph_cpp`, donors, receivers, data, compatibility_table, blood_types)
+}
+
+hopcroft_karp_cpp <- function(donors, receivers, data, compatibility_table, blood_types) {
+    .Call(`_CHTpackage_hopcroft_karp_cpp`, donors, receivers, data, compatibility_table, blood_types)
+}
+
 rcpp_hello <- function() {
     .Call(`_CHTpackage_rcpp_hello`)
 }
