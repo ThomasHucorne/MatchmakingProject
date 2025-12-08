@@ -3,6 +3,14 @@
 ```{r}
 # libraries
 
+if (!requireNamespace("CHTpackage", quietly = TRUE)) {
+if (!requireNamespace("remotes", quietly = TRUE)) {
+install.packages("remotes")
+}
+remotes::install_github("ThomasHucorne/MatchmakingProject")
+}
+
+library(CHTpackage)
 #library(packageCHT) BRANCHEMENT : DEVRA MARCHER UNE FOIS QUE LE PACKAGE SERA COMPLET
 library(ggplot2)
 ```
@@ -28,7 +36,7 @@ Tout d'abord, notons les complexité au sein des boucles. Notons $n$ le nombre d
 gale_shapley <- function(men_prefs, women_prefs) {
   free_men <- names(men_prefs)    #O(1)
   engaged <- list()    #O(1)
-  next_proposal <- setNames(rep(1, length(free_men)), free_men)    #O(1)
+  next_proposal <- setNames(rep(1, length(free_men)), free_men)    #O(n)
 
   # Helper function: rank of a man for a woman
   rank <- lapply(women_prefs, function(prefs) setNames(seq_along(prefs), prefs))    #O(n^2) n vector of size n
@@ -153,85 +161,107 @@ ggplot(df, aes(x = n)) +
 
 ### Theoritical Complexity
 
-Partie à faire quand on aura la fonction finale 
 ```{r}
 best_gs_bucket <- function(men_prefs, women_prefs) {
-  men_names   <- names(men_prefs)
-  women_names <- names(women_prefs)
+
+  men_names   <- names(men_prefs)    # O(n)
+  women_names <- names(women_prefs)       # O(n)
+
   n <- length(men_prefs)
-  men_index   <- setNames(seq_len(n), men_names)
-  women_index <- setNames(seq_len(n), women_names)
-  men_pref_num <- vector("list", n)
+
+  men_index   <- setNames(seq_len(n), men_names)     # O(n)
+  women_index <- setNames(seq_len(n), women_names)    # O(n)
+
+  men_pref_num <- vector("list", n)      # O(n)
   for (h in seq_len(n)) {
-    men_pref_num[[h]] <- women_index[ men_prefs[[h]] ]
+    men_pref_num[[h]] <- women_index[ men_prefs[[h]] ] # O(n)   (each preference list has length n)
   }
-  women_pref_num <- vector("list", n)
+
+  women_pref_num <- vector("list", n)        # O(n)
   for (f in seq_len(n)) {
-    women_pref_num[[f]] <- men_index[ women_prefs[[f]] ]
+    women_pref_num[[f]] <- men_index[ women_prefs[[f]] ] # O(n)
   }
-  women_rank <- vector("list", n)
+
+  women_rank <- vector("list", n)        # O(n)
   for (f in seq_len(n)) {
-    pref <- women_pref_num[[f]]
-    r <- integer(n)
-    for (pos in seq_len(n)) {
-      r[ pref[pos] ] <- pos
+    pref <- women_pref_num[[f]]       # O(n)
+    r <- integer(n)            # O(n)
+    for (pos in seq_len(n)) {        # Loop: n iterations
+      r[ pref[pos] ] <- pos        # O(1) chacun donc O(n)
     }
-    women_rank[[f]] <- r
+    women_rank[[f]] <- r              # O(1)
   }
-  next_choice <- rep(1L, n)
-  matching    <- rep(NA_integer_, n)
+  # total building women_rank: O(n²)
 
-  # buckets[[k]] contient des couples (h,f) où k = priorité = next_choice[h]
-  buckets <- vector("list", n)
+  next_choice <- rep(1L, n)    # O(n)
+  matching    <- rep(NA_integer_, n)        # O(n)
+
+  buckets <- vector("list", n)       # O(n)
 
   for (h in seq_len(n)) {
-    f <- men_pref_num[[h]][1]
-    buckets[[1]] <- append(buckets[[1]], list(c(h, f)))
+    f <- men_pref_num[[h]][1]          # O(1)
+    buckets[[1]] <- append(buckets[[1]], list(c(h,f))) #O(1)
   }
-  while (TRUE) {
-    p <- match(TRUE, lengths(buckets) > 0)
-    if (is.na(p)) break
-    prop <- buckets[[p]][[1]]
-    buckets[[p]] <- buckets[[p]][-1]
 
-    h <- prop[1]
-    f <- prop[2]
-    current <- match(f, matching)
+  while (TRUE) {
+
+    p <- match(TRUE, lengths(buckets) > 0)       # O(n)   (scan all buckets)
+    if (is.na(p)) break         # O(1)
+
+    prop <- buckets[[p]][[1]]          # O(1)
+    buckets[[p]] <- buckets[[p]][-1]       # O(1)
+
+    h <- prop[1]         # O(1)
+    f <- prop[2]         # O(1)
+
+    current <- match(f, matching)       # O(n)   (match scans vector)
 
     if (is.na(current)) {
 
-      matching[h] <- f
+      matching[h] <- f          # O(1)
 
     } else {
-      rc <- women_rank[[f]][current]
-      rn <- women_rank[[f]][h]
+
+      rc <- women_rank[[f]][current]      # O(1)
+      rn <- women_rank[[f]][h]         # O(1)
 
       if (rn < rc) {
-        matching[h]      <- f
-        matching[current] <- NA_integer_
 
-        next_choice[current] <- nc <- next_choice[current] + 1L
+        matching[h]       <- f          # O(1)
+        matching[current] <- NA_integer_     # O(1)
+
+        next_choice[current] <- nc <- next_choice[current] + 1L # O(1)
         if (nc <= n) {
-          f2 <- men_pref_num[[current]][nc]
-          buckets[[nc]] <- append(buckets[[nc]], list(c(current, f2)))
+          f2 <- men_pref_num[[current]][nc]           # O(1)
+          buckets[[nc]] <- append(buckets[[nc]], list(c(current,f2))) # O(1)
         }
 
       } else {
-        next_choice[h] <- nh <- next_choice[h] + 1L
+
+        next_choice[h] <- nh <- next_choice[h] + 1L   # O(1)
         if (nh <= n) {
-          f2 <- men_pref_num[[h]][nh]
-          buckets[[nh]] <- append(buckets[[nh]], list(c(h, f2)))
+          f2 <- men_pref_num[[h]][nh]                 # O(1)
+          buckets[[nh]] <- append(buckets[[nh]], list(c(h,f2))) # O(1)
         }
       }
     }
   }
+
   data.frame(
-    Man   = men_names,
-    Woman = women_names[matching],
+    Man   = men_names,          # O(n)
+    Woman = women_names[matching],        # O(n)
     stringsAsFactors = FALSE
   )
 }
+
 ```
+
+L’algorithme de Gale–Shapley basé sur des buckets effectue au maximum $n^2$ propositions.
+Alors que la plupart des updates (recherches de préférences, comparaisons de rang, insertions de bucket) s’exécutent en temps constant, deux opérations à l’intérieur de la boucle principale introduisent un facteur linéaire supplémentaire : le balayage du tableau de bucket pour localiser le premier non-empty bucket, et scanner le vecteur correspondant pour vérifier le partenaire actuel d’une femme.
+Puisque ces opérations O(n) se produisent une fois par proposition, le temps d’exécution total devient :
+
+$$C(\text{Gale-Shapley with bucket})=O(n^3)$$
+
 
 ### Empirical complexity
 
