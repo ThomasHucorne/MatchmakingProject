@@ -364,3 +364,240 @@ ggplot(df, aes(x = n, y = time, color = version)) +
   theme_minimal(base_size = 14)
 ```
 
+## Hopcroft-Karp
+
+### Complexité théorique
+
+Nous allons calculer théoriquement la complexité de l'algorithme de Hopcroft-Karp présent dans le ficher hopcroft_karp.R.
+
+Les complexité sont notés dans le fichier R où nous notons $n$ le nombre de donneurs (= nombre de receveurs aussi) et E le nombre d'edges dans le graphe.
+
+Finalement, voici les temps théoriques pour chaque fonction.
+
+```{r, function complexity, eval=FALSE}
+build_compatibility_graph <- function(donors, receivers, ...) {
+  # O(n^2)
+  ...
+}
+
+bfs_hopcroft_karp <- function(graph, donors, matching_donors, matching_receivers) {
+  # O(E)
+  ...
+}
+dfs_hopcroft_karp <- function(donor, graph, distance, matching_donor, matching_receiver) {
+  # O(E)
+  ...
+}
+
+hopcroft_karp <- function(graph) {
+  # O(E * sqrt(n))
+  ...
+}
+
+```
+
+Ainsi :
+$$C(\text{Hopcroft-Karp})=O(E*\sqrt n)$$
+### Complexité empirique
+
+Voyons comment évolue le temps que met l'algorithme à tourner en fonction de $n$.
+
+```{r, test-time}
+source("R/hopcroft_karp.R")
+
+#' Test the runtime of Hopcroft-Karp
+#'
+#' @description Runs the algorithm for random donors and receivers lists of size n and returns execution time.
+#' @param n Number of donors/reeivers.
+#' @return Execution time in seconds.
+#' @export
+test_hk_time <- function(n) {
+  set.seed(123)
+  # Create realistic blood type distribution based on population statistics
+  data <- data.frame(
+    id = 1:100,
+    blood_type = sample(
+      c("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"),
+      100, 
+      replace = TRUE,
+      prob = c(0.34, 0.06, 0.10, 0.02, 0.04, 0.01, 0.38, 0.05)  # US population distribution
+    )
+  )
+  
+  # Randomly assign 50 donors and 50 receivers
+  donors <- sample(data$id, 50)
+  receivers <- setdiff(data$id, donors)
+  
+  compatibility_table <- create_compatibility_table()
+  
+  # Measure execution time
+  start_time <- Sys.time()
+  result <- hopcroft_karp(donors, receivers, data, compatibility_table, can_receive)
+  end_time <- Sys.time()
+  
+  execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
+
+  num_edges <- sum(sapply(result$graph, length))
+  
+  return(list(
+    time = execution_time,
+    edges = num_edges,
+    vertices = 2*n,
+    matches = result$matching_size
+  ))
+}
+```
+
+```{r, plot}
+library(ggplot2)
+
+# Choose sizes to test
+sizes <- seq(100, 5000, by = 500)
+
+# Mesurer pour chaque taille
+results <- lapply(sizes, function(n) {
+  cat(sprintf("Test avec n = %d...\n", n))
+  test_hk_time(n)
+})
+
+# Extraire les données
+times <- sapply(results, function(r) r$time)
+edges <- sapply(results, function(r) r$edges)
+vertices <- sapply(results, function(r) r$vertices)
+matches <- sapply(results, function(r) r$matches)
+df <- data.frame(
+  n = sizes,
+  time = times,
+  edges = edges,
+  vertices = vertices,
+  matches = matches
+)
+
+# Calculer les courbes théoriques
+# Pour Hopcroft-Karp : O(E·√V)
+# V = 2n (n donneurs + n receveurs)
+# E ≈ densité × n² pour un graphe biparti
+
+# Normaliser les courbes pour comparaison visuelle
+max_time <- max(df$time)
+
+# Courbe E·√V théorique
+df$e_sqrt_v <- (df$edges * sqrt(df$vertices)) / max(df$edges * sqrt(df$vertices)) * max_time
+
+# Courbe n² pour comparaison (incorrecte mais pour référence)
+df$n_squared <- (df$n^2) / max(df$n^2) * max_time
+
+# Courbe E (linéaire en E)
+df$e_linear <- df$edges / max(df$edges) * max_time
+
+ggplot(df, aes(x = n)) +
+  # Temps mesuré (empirique)
+  geom_line(aes(y = time, color = "Temps mesuré (empirique)"), 
+            size = 1.2) +
+  geom_point(aes(y = time, color = "Temps mesuré (empirique)"), 
+             size = 2.5) +
+  
+  # Courbe théorique O(E·√V)
+  geom_line(aes(y = e_sqrt_v, color = "O(E·√V) théorique"), 
+            linetype = "dashed", size = 1) +
+  
+  # Courbe O(n²) pour comparaison
+  geom_line(aes(y = n_squared, color = "O(n²) pour comparaison"), 
+            linetype = "dotted", size = 1, alpha = 0.6) +
+  
+  scale_color_manual(
+    name = "Légende",
+    values = c(
+      "Temps mesuré (empirique)" = "#E41A1C",
+      "O(E·√V) théorique" = "#377EB8",
+      "O(n²) pour comparaison" = "#999999"
+    )
+  ) +
+  
+  labs(
+    title = "Complexité temporelle de Hopcroft-Karp",
+    subtitle = "Comparaison : Temps mesuré vs O(E·√V) vs O(n²)",
+    x = "n (nombre de donneurs = nombre de receveurs)",
+    y = "Temps d'exécution (secondes)",
+    caption = sprintf("Nombre d'arêtes moyen : %.0f pour n=%.0f", 
+                     mean(df$edges), mean(df$n))
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40")
+  )
+```
+On n'observe pas une comlexité comme théorique O(E·√V) car le graphe n'est pas assez dense. En effet, pour des petites valeurs de n, le nombre d'arêtes est relativement faible comparé à n².
+
+```{r}
+# Calculer la pente en échelle log-log
+log_n <- log10(df$n)
+log_time <- log10(df$time)
+log_e_sqrt_v <- log10(df$edges * sqrt(df$vertices))
+
+# Régression linéaire pour estimer la pente empirique
+model_time <- lm(log_time ~ log_n)
+slope_time <- coef(model_time)[2]
+
+# Régression pour E·√V
+model_theory <- lm(log_time ~ log_e_sqrt_v)
+slope_theory <- coef(model_theory)[2]
+
+p2 <- ggplot(df, aes(x = n)) +
+  # Temps mesuré
+  geom_line(aes(y = time, color = "Temps mesuré"), 
+            size = 1.2) +
+  geom_point(aes(y = time, color = "Temps mesuré"), 
+             size = 2.5) +
+  
+  # Courbe O(E·√V)
+  geom_line(aes(y = e_sqrt_v, color = "O(E·√V)"), 
+            linetype = "dashed", size = 1) +
+  
+  # Courbe O(n²)
+  geom_line(aes(y = n_squared, color = "O(n²)"), 
+            linetype = "dotted", size = 1, alpha = 0.6) +
+  
+  scale_color_manual(
+    name = "Légende",
+    values = c(
+      "Temps mesuré" = "#E41A1C",
+      "O(E·√V)" = "#377EB8",
+      "O(n²)" = "#999999"
+    )
+  ) +
+  
+  scale_x_log10(
+    breaks = c(100, 200, 500, 1000, 2000, 5000),
+    labels = c("100", "200", "500", "1k", "2k", "5k")
+  ) +
+  scale_y_log10() +
+  
+  labs(
+    title = "Complexité de Hopcroft-Karp (Échelle log-log)",
+    subtitle = sprintf(
+      "Pente empirique : %.2f | Pente théorique O(E·√V) : %.2f | O(n²) : 2.0",
+      slope_time, slope_theory
+    ),
+    x = "log(n) - nombre de donneurs/receveurs",
+    y = "log(temps) - secondes",
+    caption = "En échelle log-log, une pente de ~1.5 indique O(E·√V)"
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 11, color = "gray40")
+  ) +
+  
+  # Ajouter des annotations pour les pentes
+  annotate("text", x = 500, y = max(df$time) * 0.5, 
+           label = sprintf("Pente mesurée ≈ %.2f", slope_time),
+           color = "#E41A1C", size = 4, fontface = "bold")
+
+print(p2)
+```

@@ -75,15 +75,15 @@ build_compatibility_graph <- function(donors, receivers, data, compatibility_tab
 
   graph <- list()
 
-  for (donor_id in donors) {
+  for (donor_id in donors) { # O(n²) doucle imbricated loop
     donor_type <- data$blood_type[donor_id]
     compatible_receivers <- c()
 
-    for (receiver_id in receivers) {
+    for (receiver_id in receivers) { #O(n)
       receiver_type <- data$blood_type[receiver_id]
 
       if (can_receive(donor_type, receiver_type, compatibility_table)) {
-        compatible_receivers <- c(compatible_receivers, receiver_id)
+        compatible_receivers <- c(compatible_receivers, receiver_id) # O(1)
       }
     }
 
@@ -101,12 +101,12 @@ bfs_hopcroft_karp <- function(graph, donors, matching_donor, matching_receiver) 
   queue <- c()
 
   # Add all free donors to the queue
-  for (donor in donors) {
+  for (donor in donors) { # O(n)
     if (is.na(matching_donor[[as.character(donor)]])) {
-      distance[[as.character(donor)]] <- 0 # ??
+      distance[[as.character(donor)]] <- 0
       queue <- c(queue, donor)
     } else {
-      distance[[as.character(donor)]] <- Inf # ??
+      distance[[as.character(donor)]] <- Inf
     }
   }
 
@@ -114,8 +114,8 @@ bfs_hopcroft_karp <- function(graph, donors, matching_donor, matching_receiver) 
   distance[["NIL"]] <- Inf
 
   # BFS
-  repeat{
-    donor <- queue[1] # is this enqueue operation?
+  repeat{ # O(n*E) where E is the number of edges in the graph because each edge is explored at most once
+    donor <- queue[1]
     queue <- queue[-1]
 
     if (length(queue) == 0) {
@@ -127,7 +127,7 @@ bfs_hopcroft_karp <- function(graph, donors, matching_donor, matching_receiver) 
       adjacent_receivers <- graph[[as.character(donor)]]
 
       if (length(adjacent_receivers) > 0) {
-        for (receiver in adjacent_receivers) {
+        for (receiver in adjacent_receivers) { # O(n) worst case, connect every donor to every receiver
           receiver_key <- as.character(receiver)
 
           # Found the donor paired to this receiver
@@ -163,7 +163,7 @@ dfs_hopcroft_karp <- function(donor, graph, distance, matching_donor, matching_r
     adjacent_receivers <- graph[[as.character(donor)]]
 
     if (length(adjacent_receivers) > 0) {
-      for (receiver in adjacent_receivers) {
+      for (receiver in adjacent_receivers) { # O(n) worst case, connect every donor to every receiver
         receiver_key <- as.character(receiver)
 
         # Found the donor paired to this receiver
@@ -177,7 +177,7 @@ dfs_hopcroft_karp <- function(donor, graph, distance, matching_donor, matching_r
         # Verify the distance condition
         if (distance[[paired_donor_key]] == distance[[as.character(donor)]] + 1) {
           # Recursively try to find an augmenting path from the paired donor
-          dfs_result <- dfs_hopcroft_karp(paired_donor, graph, distance, matching_donor, matching_receiver)
+          dfs_result <- dfs_hopcroft_karp(paired_donor, graph, distance, matching_donor, matching_receiver) # O(n*E)
 
           if (dfs_result$success) {
             # Create the new matching
@@ -208,17 +208,17 @@ dfs_hopcroft_karp <- function(donor, graph, distance, matching_donor, matching_r
 # ======================== Algorithm of Hopcroft-Karp =======================
 hopcroft_karp <- function(donors, receivers, data, compatibility_table, can_receive) {
   # cat("Building compatibility graph...\n")
-  graph <- build_compatibility_graph(donors, receivers, data, compatibility_table, can_receive)
+  graph <- build_compatibility_graph(donors, receivers, data, compatibility_table, can_receive) # O(n²)
 
   # Initialisation des structures de matching
   matching_donor <- list()
   matching_receiver <- list()
 
-  for (donor in donors) {
+  for (donor in donors) { # O(n)
     matching_donor[[as.character(donor)]] <- NA
   }
 
-  for (receiver in receivers) {
+  for (receiver in receivers) { # O(n)
     matching_receiver[[as.character(receiver)]] <- NA
   }
 
@@ -228,19 +228,19 @@ hopcroft_karp <- function(donors, receivers, data, compatibility_table, can_rece
   # cat("Research of maximum matching...\n")
 
   # While there exists an augmenting path
-  while (iteration < 1000) {
+  while (iteration < 1000) { # Safety limit to avoid infinite loops
     iteration <- iteration + 1
-    bfs_result <- bfs_hopcroft_karp(graph, donors, matching_donor, matching_receiver)
+    bfs_result <- bfs_hopcroft_karp(graph, donors, matching_donor, matching_receiver) # O(n*E)
 
     if (!bfs_result$found) {
       break
     }
 
     # For each free donor, try to find an augmenting path
-    for (donor in donors) {
+    for (donor in donors) { # O(n)
       if (is.na(matching_donor[[as.character(donor)]])) {
         dfs_result <- dfs_hopcroft_karp(donor, graph, bfs_result$distance,
-                                        matching_donor, matching_receiver)
+                                        matching_donor, matching_receiver) # O(n*E)
 
         if (dfs_result$success) {
           matching_size <- matching_size + 1
@@ -267,6 +267,9 @@ hopcroft_karp <- function(donors, receivers, data, compatibility_table, can_rece
   return(result)
 }
 
+
+
+# ======================== Print matching results ===========================
 # Function to print matching results
 print_matching_results <- function(result, donors, receivers, data) {
   cat("\n========================================\n")

@@ -31,12 +31,9 @@ This document tests the Hopcroft-Karp algorithm implementation for blood donatio
 # Setup
 
 ```{r load-functions}
-# Source the original R implementation
-# Uncomment and adjust path as needed:
-# source("hopcroft_karp_original.R")
-
-# If using C++ version, source it here:
-# source("hopcroft_karp_cpp.R")
+# Source the implementation
+source("hopcroft_karp.R")
+source("hopcroft_karp_cpp.R")
 ```
 
 ---
