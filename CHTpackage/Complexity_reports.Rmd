@@ -328,13 +328,13 @@ bench_heap_cpp <- function(n) {
 ```
 
 ```{r}
-times_r   <- sapply(sizes, bench_heap_r)
+times_r   <- sapply(sizes, test_gs_bucket_time)
 times_cpp <- sapply(sizes, bench_heap_cpp)
 
 df <- data.frame(
   n = rep(sizes, 2),
   time = c(times_r, times_cpp),
-  version = rep(c("R Heap", "C++ Heap"), each = length(sizes))
+  version = rep(c("R bucket", "C++ Heap"), each = length(sizes))
 )
 ```
 
@@ -343,7 +343,7 @@ ggplot(df, aes(x = n, y = time, color = version)) +
   geom_line(size = 1.2) +
   geom_point(size = 2) +
   labs(
-    title = "Gale–Shapley Heap: R vs C++ Runtime Comparison",
+    title = "Gale–Shapley Bucket: R vs C++ Runtime Comparison",
     x = "Problem size (n)",
     y = "Elapsed time (seconds)"
   ) +
@@ -357,7 +357,7 @@ ggplot(df, aes(x = n, y = time, color = version)) +
   scale_x_log10() +
   scale_y_log10() +
   labs(
-    title = "Gale–Shapley Heap: R vs C++ (Log–Log Scale)",
+    title = "Gale–Shapley Bucket: R vs C++ (Log–Log Scale)",
     x = "log(n)",
     y = "log(time)"
   ) +
