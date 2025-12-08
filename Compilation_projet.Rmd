@@ -62,7 +62,7 @@ result_bucket
 ```
 
 # Algorithm 3 - Hopcroft–Karp (Constraints in health-related setting)
-Pour lancer cet algorithme, il faut lancer le Rmd de son nom, qui est dans CHTpackage/R.
+Pour lancer cet algorithme, il faut lancer hoopcroft_karp.Rmd.
 
 # Complexity Comparison
 Pour lancer la comparaison de complexité, il faut lancer Complexity_reports.Rmd.
