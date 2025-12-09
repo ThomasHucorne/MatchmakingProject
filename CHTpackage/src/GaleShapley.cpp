@@ -6,12 +6,13 @@
 #include <algorithm>
 using namespace Rcpp;
 
-//' Gale-Shapley Stable Matching Algorithm (C++ version)
+//' Gale-Shapley Stable Matching Algorithm
  //'
- //' @description Implements the Gale-Shapley algorithm for stable matching using C++.
- //' @param men_prefs A named list of men's preferences (each element is a character vector of women names).
- //' @param women_prefs A named list of women's preferences (each element is a character vector of men names).
- //' @return A data.frame with columns "Man" and "Woman" representing the stable matches.
+ //' Implements the Gale-Shapley algorithm for stable matching using C++.
+ //'
+ //' @param men_prefs A named list of men's preferences (each element is a character vector of women names)
+ //' @param women_prefs A named list of women's preferences (each element is a character vector of men names)
+ //' @return A data.frame with columns "Man" and "Woman" representing the stable matches
  //' @examples
  //' men_prefs <- list(
  //'   A = c("Z", "X", "Y"),
@@ -30,7 +31,6 @@ using namespace Rcpp;
    // Récupérer les noms des hommes et des femmes
    CharacterVector men_names = men_prefs.names();
    CharacterVector women_names = women_prefs.names();
-
    int n_men = men_names.size();
 
    // Créer un ensemble des hommes libres
@@ -54,7 +54,6 @@ using namespace Rcpp;
    for (int i = 0; i < women_names.size(); i++) {
      std::string woman = as<std::string>(women_names[i]);
      CharacterVector prefs = as<CharacterVector>(women_prefs[woman]);
-
      for (int j = 0; j < prefs.size(); j++) {
        std::string man = as<std::string>(prefs[j]);
        rank[woman][man] = j;

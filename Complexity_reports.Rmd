@@ -36,7 +36,7 @@ Implémente plusieurs algorithmes pour résoudre le problème de matchmaking sta
 
 # Defining Preferences
 
-```{r}
+```{r, example1}
 # Example 1 preference lists
 
 men_prefs <- list(
@@ -58,7 +58,7 @@ women_prefs <- list(
 
 # Algorithm 1 - Naive Gale-Shapley
 
-```{r}
+```{r, algo1}
 result_gs <- gale_shapley(men_prefs, women_prefs)
 result_gs
 
@@ -66,12 +66,12 @@ result_gs
 
 # Algorithm 2 - Gale-Shapley with Bucket
 
-```{r}
+```{r, algo2}
 result_bucket <- best_gs_bucket(men_prefs, women_prefs)
 result_bucket
 ```
 
-```{r}
+```{r, example2}
 # Example 2
 men_prefs_1 <- list(
   Camille  = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
@@ -92,18 +92,31 @@ women_prefs_1 <- list(
 
 Algorithm 1 - Naive Gale-Shapley
 
-```{r}
+```{r, algo1-2}}
 result_gs_1 <- gale_shapley(men_prefs_1, women_prefs_1)
 result_gs_1
 ```
 
 Algorithm 2 - Gale-Shapley with Bucket
 
-```{r}
+```{r, algo2-2}
 result_bucket_1 <- best_gs_bucket(men_prefs_1, women_prefs_1)
 result_bucket_1
 ```
 
+Algorithm3 - Hopcroft-Karp for Blood Donor Matching
+```{r, algo3}
+# Example blood type data
+data <- data.frame(
+  id = 1:6,
+  blood_type = c("A+", "O-", "B+", "AB+", "AB-", "O+")
+)
+donors <- c(1, 2, 3)      # IDs of donors
+receivers <- c(4, 5, 6)   # IDs of receivers
+compatibility_table <- create_compatibility_table()
+result_hk <- hopcroft_karp(donors, receivers, data, compatibility_table, can_receive)
+print_matching_results(result_hk, donors, receivers, data)
+```
 # Complexity
 
 ## Gale-Shapley
@@ -608,7 +621,7 @@ ggplot(df, aes(x = n)) +
     plot.subtitle = element_text(size = 12, color = "gray40")
   )
 ```
-On n'observe pas une comlexité comme théorique O(E·√V) car le graphe n'est pas assez dense. En effet, pour des petites valeurs de n, le nombre d'arêtes est relativement faible comparé à n².
+On n'observe pas une comlexité comme théorique O(E·√V) car des fonctions annexes et l'implémentation viennent ralentir l'algorithme.
 
 ```{r, hopcroft-karp log-log plot}
 # Calculer la pente en échelle log-log
@@ -679,3 +692,4 @@ p2 <- ggplot(df, aes(x = n)) +
 
 print(p2)
 ```
+

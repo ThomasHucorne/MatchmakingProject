@@ -34,20 +34,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// can_receive_cpp
-bool can_receive_cpp(const std::string& donor_type, const std::string& recipient_type, const NumericMatrix& compatibility_table, const CharacterVector& blood_types);
-RcppExport SEXP _CHTpackage_can_receive_cpp(SEXP donor_typeSEXP, SEXP recipient_typeSEXP, SEXP compatibility_tableSEXP, SEXP blood_typesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type donor_type(donor_typeSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type recipient_type(recipient_typeSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type compatibility_table(compatibility_tableSEXP);
-    Rcpp::traits::input_parameter< const CharacterVector& >::type blood_types(blood_typesSEXP);
-    rcpp_result_gen = Rcpp::wrap(can_receive_cpp(donor_type, recipient_type, compatibility_table, blood_types));
-    return rcpp_result_gen;
-END_RCPP
-}
 // build_compatibility_graph_cpp
 List build_compatibility_graph_cpp(const IntegerVector& donors, const IntegerVector& receivers, const DataFrame& data, const NumericMatrix& compatibility_table, const CharacterVector& blood_types);
 RcppExport SEXP _CHTpackage_build_compatibility_graph_cpp(SEXP donorsSEXP, SEXP receiversSEXP, SEXP dataSEXP, SEXP compatibility_tableSEXP, SEXP blood_typesSEXP) {
@@ -82,7 +68,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_CHTpackage_gale_shapley_cpp", (DL_FUNC) &_CHTpackage_gale_shapley_cpp, 2},
     {"_CHTpackage_best_gs_bucket_cpp", (DL_FUNC) &_CHTpackage_best_gs_bucket_cpp, 2},
-    {"_CHTpackage_can_receive_cpp", (DL_FUNC) &_CHTpackage_can_receive_cpp, 4},
     {"_CHTpackage_build_compatibility_graph_cpp", (DL_FUNC) &_CHTpackage_build_compatibility_graph_cpp, 5},
     {"_CHTpackage_hopcroft_karp_cpp", (DL_FUNC) &_CHTpackage_hopcroft_karp_cpp, 5},
     {NULL, NULL, 0}
