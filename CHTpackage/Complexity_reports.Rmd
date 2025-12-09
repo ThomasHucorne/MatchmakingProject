@@ -75,7 +75,7 @@ Voyons comment évolue le temps que met l'algorithme à tourner en fonction de $
 ```{r, plot GS-times}
 
 # Choose sizes to test
-sizes <- seq(500, 3000, by = 500)
+sizes <- seq(300, 3000, by = 300)
 
 # Measure runtime for each size
 times <- sapply(sizes, test_gs_time)
@@ -227,7 +227,7 @@ $$C(\text{Gale-Shapley with bucket})=O(n^3)$$
 ```{r, gs-bucket-plot}}
 
 # Choose sizes to test
-sizes <- seq(500, 3000, by = 500)
+sizes <- seq(300, 3000, by = 300)
 # Measure runtime for each size
 times <- sapply(sizes, test_gs_bucket_time)
 
@@ -276,7 +276,8 @@ ggplot(df, aes(x = n)) +
 
 ```{r, gs-bucket-r-vs-cpp-plot}}
 
-times_r   <- sapply(sizes, test_gs_bucket_time)
+
+times_r   <- times
 times_cpp <- sapply(sizes, test_gs_bucket_time_cpp)
 
 df <- data.frame(
