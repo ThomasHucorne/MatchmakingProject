@@ -18,6 +18,6 @@ test_gs_bucket_time_cpp <- function(n) {
   names(women_prefs) <- women
 
   system.time({
-    gale_shapley_bucket_cpp(men_prefs, women_prefs) # CHANGEZ ICI L'ALGO QUE VOUS VOULEZ METTRE
+    best_gs_bucket_cpp(men_prefs, women_prefs) # CHANGEZ ICI L'ALGO QUE VOUS VOULEZ METTRE
   })["elapsed"]
 }
