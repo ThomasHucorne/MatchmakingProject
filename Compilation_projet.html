@@ -11,7 +11,7 @@
 
 <meta name="author" content="CAPIEU Valentin, HUCORNE Thomas &amp; TOURNIER Valentin" />
 
-<meta name="date" content="2025-12-06" />
+<meta name="date" content="2025-12-08" />
 
 <title>Project: Stable Matchmaking Algorithms</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Project: Stable Matchmaking Algorithms</h1>
 <h4 class="author">CAPIEU Valentin, HUCORNE Thomas &amp; TOURNIER
 Valentin</h4>
-<h4 class="date">2025-12-06</h4>
+<h4 class="date">2025-12-08</h4>
 
 </div>
 
@@ -1504,25 +1504,54 @@ library(CHTpackage)</code></pre>
 matchmaking stable entre deux ensembles (hommes et femmes). Comprend une
 version naïve de l’algorithme de Gale-Shapley, une variante en
 choissisant les meilleurs d’abord (en prenant en compte les premiers
-choix des hommes comme base) basée sur le tas. Enfin un algorithme
-partant de celui de Gale-Sahpley avec un tas appliqué au domaine de la
-santé, avec ainsi des contraintes dans l’algorithme.</p>
+choix des hommes comme base) basée sur une liste/ vectuer. Enfin un
+algorithme appliqué au domaine de la santé, avec ainsi des contraintes
+bien précises dedans.</p>
 </div>
 <div id="defining-preferences" class="section level1">
 <h1>Defining Preferences</h1>
+<pre class="r"><code># Example preference lists
+
+men_prefs &lt;- list(
+A = c(&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;),
+B = c(&quot;Y&quot;, &quot;X&quot;, &quot;Z&quot;),
+C = c(&quot;Y&quot;, &quot;Z&quot;, &quot;X&quot;)
+)
+
+women_prefs &lt;- list(
+X = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;),
+Y = c(&quot;B&quot;, &quot;A&quot;, &quot;C&quot;),
+Z = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;)
+)</code></pre>
 </div>
 <div id="algorithm-1---naive-gale-shapley" class="section level1">
 <h1>Algorithm 1 - Naive Gale-Shapley</h1>
+<pre class="r"><code>result_gs &lt;- gale_shapley(men_prefs, women_prefs)
+result_gs</code></pre>
+<pre><code>##   Man Woman
+## X   A     X
+## Y   B     Y
+## Z   C     Z</code></pre>
 </div>
-<div id="algorithm-2---gale-shapley-with-heap" class="section level1">
-<h1>Algorithm 2 - Gale-Shapley with Heap</h1>
+<div id="algorithm-2---gale-shapley-with-bucket" class="section level1">
+<h1>Algorithm 2 - Gale-Shapley with Bucket</h1>
+<pre class="r"><code>result_bucket &lt;- best_gs_bucket(men_prefs, women_prefs)
+result_bucket</code></pre>
+<pre><code>##   Man Woman
+## 1   A     X
+## 2   B     Y
+## 3   C     Z</code></pre>
 </div>
-<div id="algorithm-3---gale-shapley-with-constraints-in-health-related-problem" class="section level1">
-<h1>Algorithm 3 - Gale-Shapley with constraints in health-related
-problem</h1>
+<div id="algorithm-3---hopcroftkarp-constraints-in-health-related-setting" class="section level1">
+<h1>Algorithm 3 - Hopcroft–Karp (Constraints in health-related
+setting)</h1>
+<p>Pour lancer cet algorithme, il faut lancer le Rmd de son nom, qui est
+dans CHTpackage/R.</p>
 </div>
 <div id="complexity-comparison" class="section level1">
 <h1>Complexity Comparison</h1>
+<p>Pour lancer la comparaison de complexité, il faut lancer
+Complexity_reports.Rmd.</p>
 </div>
 
 
