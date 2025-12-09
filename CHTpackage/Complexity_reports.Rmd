@@ -1,4 +1,19 @@
-# Complexity file
+---
+title: "Project: Stable Matchmaking Algorithms"
+author: "CAPIEU Valentin, HUCORNE Thomas & TOURNIER Valentin"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Installing and Loading the package
 
 ```{r, import libraries}
 # libraries
@@ -14,6 +29,83 @@ if (!requireNamespace("CHTpackage", quietly = TRUE)) {
 library(CHTpackage)
 library(ggplot2)
 ```
+
+# Problem description
+
+Implémente plusieurs algorithmes pour résoudre le problème de matchmaking stable entre deux ensembles (hommes et femmes). Comprend une version naïve de l’algorithme de Gale-Shapley, une variante en choissisant les meilleurs d'abord (en prenant en compte les premiers choix des hommes comme base) basée sur une liste/ vectuer. Enfin un algorithme appliqué au domaine de la santé, avec ainsi des contraintes bien précises dedans.
+
+# Defining Preferences
+
+```{r}
+# Example 1 preference lists
+
+men_prefs <- list(
+  Camille = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
+  Gérard  = c("Sarah", "Elodie", "Lila", "Prudence", "Bérénice"),
+  Thibault = c("Lila", "Bérénice", "Elodie", "Sarah", "Prudence"),
+  Sacha   = c("Elodie", "Lila", "Prudence", "Bérénice", "Sarah"),
+  Jérôme  = c("Prudence", "Sarah", "Elodie", "Lila", "Bérénice")
+)
+
+women_prefs <- list(
+  Bérénice = c("Gérard", "Camille", "Sacha", "Thibault", "Jérôme"),
+  Prudence = c("Sacha", "Jérôme", "Camille", "Gérard", "Thibault"),
+  Lila     = c("Camille", "Thibault", "Jérôme", "Sacha", "Gérard"),
+  Sarah    = c("Thibault", "Sacha", "Gérard", "Jérôme", "Camille"),
+  Elodie   = c("Jérôme", "Camille", "Thibault", "Gérard", "Sacha")
+)
+```
+
+# Algorithm 1 - Naive Gale-Shapley
+
+```{r}
+result_gs <- gale_shapley(men_prefs, women_prefs)
+result_gs
+
+```
+
+# Algorithm 2 - Gale-Shapley with Bucket
+
+```{r}
+result_bucket <- best_gs_bucket(men_prefs, women_prefs)
+result_bucket
+```
+
+```{r}
+# Example 2
+men_prefs_1 <- list(
+  Camille  = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
+  Gérard   = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
+  Thibault = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
+  Sacha    = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie"),
+  Jérôme   = c("Bérénice", "Prudence", "Lila", "Sarah", "Elodie")
+)
+
+women_prefs_1 <- list(
+  Bérénice = c("Jérôme", "Sacha", "Thibault", "Gérard", "Camille"),
+  Prudence = c("Jérôme", "Sacha", "Thibault", "Gérard", "Camille"),
+  Lila     = c("Jérôme", "Sacha", "Thibault", "Gérard", "Camille"),
+  Sarah    = c("Jérôme", "Sacha", "Thibault", "Gérard", "Camille"),
+  Elodie   = c("Jérôme", "Sacha", "Thibault", "Gérard", "Camille")
+)
+```
+
+Algorithm 1 - Naive Gale-Shapley
+
+```{r}
+result_gs_1 <- gale_shapley(men_prefs_1, women_prefs_1)
+result_gs_1
+```
+
+Algorithm 2 - Gale-Shapley with Bucket
+
+```{r}
+result_bucket_1 <- best_gs_bucket(men_prefs_1, women_prefs_1)
+result_bucket_1
+```
+
+# Complexity
+
 ## Gale-Shapley
 
 ### Complexité théorique
@@ -103,6 +195,11 @@ ggplot(df, aes(x = n)) +
 On observe bien un temps d'execution quadratique, car si l'on plot avec une échelle logarithmique on observe bien une droite de pente égale à 2.
 
 ```{r, plot GS-loglog}
+log_time <- log10(df$time)
+log_n <- log10(df$n)
+model_time <- lm(log_time ~ log_n)
+slope_time <- coef(model_time)[2]
+
 ggplot(df, aes(x = n)) +
   geom_line(aes(y = time), size = 1.2, color = 'red') +
   geom_point(aes(y = time), size = 2, color = 'red') +
@@ -114,14 +211,18 @@ ggplot(df, aes(x = n)) +
   ) +
   scale_x_log10() +
   scale_y_log10() +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14) +
+  annotate("text", x = 500, y = max(df$time) * 0.5, 
+           label = sprintf("Pente mesurée ≈ %.2f", slope_time),
+           color = "#E41A1C", size = 4, fontface = "bold")
+
 ```
 
 ## Gale-Shapley with buckets
 
 ### Theoritical Complexity
 
-Partie à faire quand on aura la fonction finale 
+
 ```{r, gs-bucket-complexity}
 best_gs_bucket <- function(men_prefs, women_prefs) {
 
@@ -229,15 +330,15 @@ $$C(\text{Gale-Shapley with bucket})=O(n^3)$$
 # Choose sizes to test
 sizes <- seq(300, 3000, by = 300)
 # Measure runtime for each size
-times <- sapply(sizes, test_gs_bucket_time)
+times_bucket <- sapply(sizes, test_gs_bucket_time)
 
 # Build data frame for plotting
 df <- data.frame(
   n = sizes,
-  time = times,
-  n_squared = (sizes^2) / max(sizes^2) * max(times),          # scaled n²
-  n_cubed  = (sizes^3) / max(sizes^3) * max(times),
-  n_log_n  = (sizes * log(sizes)) / max(sizes * log(sizes)) * max(times)  # scaled n log n
+  time = times_bucket,
+  n_squared = (sizes^2) / max(sizes^2) * max(times_bucket),          # scaled n²
+  n_cubed  = (sizes^3) / max(sizes^3) * max(times_bucket),
+  n_log_n  = (sizes * log(sizes)) / max(sizes * log(sizes)) * max(times_bucket)  # scaled n log n
 )
 
 # Plot measured time and n^2, n^3 curve
@@ -257,6 +358,13 @@ ggplot(df, aes(x = n)) +
 
 
 ```{r, gs-bucket-loglog-plot}}
+
+log_time <- log10(df$time)
+log_n <- log10(df$n)
+model_time <- lm(log_time ~ log_n)
+slope_time <- coef(model_time)[2]
+
+
 ggplot(df, aes(x = n)) +
   geom_line(aes(y = time), size = 1.2, color = 'red') +
   geom_point(aes(y = time), size = 2, color = 'red') +
@@ -269,15 +377,55 @@ ggplot(df, aes(x = n)) +
   ) +
   scale_x_log10() +
   scale_y_log10() +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14)+
+  annotate("text", x = 500, y = max(df$time) * 0.5, 
+           label = sprintf("Pente mesurée ≈ %.2f", slope_time),
+           color = "#E41A1C", size = 4, fontface = "bold")
 ```
+### Gale-shapley with bucket vs without
+
+Comparons cette nouvelle version avec l'originale :
+
+```{r}
+df <- data.frame(
+  n = sizes,
+  time1 = times,
+  time2 = times_bucket,
+  n_squared = (sizes^2) / max(sizes^2) * max(times),          # scaled n²
+  n_cubed  = (sizes^3) / max(sizes^3) * max(times),
+  n_log_n  = (sizes * log(sizes)) / max(sizes * log(sizes)) * max(times)  # scaled n log n
+)
+```
+
+```{r}
+# Plot measured time of gs with and without bucket
+ggplot(df, aes(x = n)) +
+  geom_line(aes(y = time1), size = 1.2, color = 'red') +
+  geom_point(aes(y = time1), size = 2, color = 'red') +
+  geom_line(aes(y = time2), size = 1.2, color = 'purple') +
+  geom_point(aes(y = time2), size = 2, color = 'purple') +
+  labs(
+    title = "Time Complexity of Gale–Shapley with and without bucket",
+    x = "n (number of men/women)",
+    y = "Execution time (seconds)"
+  ) +
+  theme_minimal(base_size = 14) +
+  annotate("text", x = 1000, y = max(df$time2) * 0.6, 
+           label = print("with bucket"),
+           color = "purple", size = 4, fontface = "bold") +
+  annotate("text", x = 1000, y = max(df$time2) * 0.4, 
+           label = print("without bucket"),
+           color = "red", size = 4, fontface = "bold")
+```
+
+
 ### R vs C++
 
 
 ```{r, gs-bucket-r-vs-cpp-plot}}
 
 
-times_r   <- times
+times_r   <- times_bucket
 times_cpp <- sapply(sizes, test_gs_bucket_time_cpp)
 
 df <- data.frame(
