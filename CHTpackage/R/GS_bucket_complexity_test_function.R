@@ -17,7 +17,7 @@ test_gs_bucket_time <- function(n) {
   names(women_prefs) <- women
 
   time <- system.time({
-    best_gs_bucket_fast(men_prefs, women_prefs) # CHANGEZ ICI L'ALGO QUE VOUS VOULEZ METTRE
+    best_gs_bucket(men_prefs, women_prefs) # CHANGEZ ICI L'ALGO QUE VOUS VOULEZ METTRE
   })
   return(time["elapsed"])
 }
