@@ -1,3 +1,4 @@
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 useDynLib(CHTpackage, .registration = TRUE)
+export(best_gs_bucket_cpp)
