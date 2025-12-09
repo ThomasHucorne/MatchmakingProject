@@ -7,11 +7,11 @@
 using namespace Rcpp;
 
 /**
- * @title Best-First Gale–Shapley (Heap Version) — C++ Implementation
+ * @title Best-First Gale–Shapley (Bucket Version) — C++ Implementation
  *
  * @description
- * C++ version of the heap-based Gale–Shapley stable matching algorithm.
- * Uses a min-heap priority queue for proposal ordering.
+ * C++ version of the bucket-based Gale–Shapley stable matching algorithm.
+ * Uses a bucket priority queue for proposal ordering.
  *
  * @param men_prefs A named list of men’s preference vectors.
  * @param women_prefs A named list of women’s preference vectors.
@@ -21,70 +21,68 @@ using namespace Rcpp;
  * @export
  */
 // [[Rcpp::export]]
-DataFrame best_gs_bucket_cpp(List men_prefs,List women_prefs) {
+DataFrame best_gs_bucket_cpp(List men_prefs, List women_prefs) {
   int n = men_prefs.size();
 
-  // Extract names
+  // Retrieve R names
   CharacterVector men_names   = men_prefs.names();
   CharacterVector women_names = women_prefs.names();
 
-  // Build index maps: name -> index
-  std::unordered_map<std::string,int> men_index;
-  std::unordered_map<std::string,int> women_index;
+  // Convert men preferences to numeric indices
+  std::vector<std::vector<int>> men_pref_num(n);
+  std::map<String,int> women_index;
 
   for (int i = 0; i < n; i++)
-    men_index[ as<std::string>(men_names[i]) ] = i;
-  for (int j = 0; j < n; j++)
-    women_index[ as<std::string>(women_names[j]) ] = j;
+    women_index[women_names[i]] = i;
+  for (int h = 0; h < n; h++) {
+    CharacterVector v = men_prefs[h];
+    int m = v.size();
+    men_pref_num[h].resize(m);
+    for (int j = 0; j < m; j++)
+      men_pref_num[h][j] = women_index[v[j]];
+    }
 
-  // Convert preferences to int indices
-  std::vector<std::vector<int>> men_pref_num(n);
+  // Convert women preferences
   std::vector<std::vector<int>> women_pref_num(n);
+  std::map<String,int> men_index;
 
-  for (int i = 0; i < n; i++) {
-    CharacterVector prefs = men_prefs[i];
-    int m = prefs.size();
-    men_pref_num[i].resize(m);
-    for (int k = 0; k < m; k++)
-      men_pref_num[i][k] = women_index[ as<std::string>(prefs[k]) ];
-  }
+  for (int i = 0; i < n; i++)
+    men_index[men_names[i]] = i;
+
   for (int f = 0; f < n; f++) {
-    CharacterVector prefs = women_prefs[f];
-    int m = prefs.size();
+    CharacterVector v = women_prefs[f];
+    int m = v.size();
     women_pref_num[f].resize(m);
-    for (int k = 0; k < m; k++)
-      women_pref_num[f][k] = men_index[ as<std::string>(prefs[k]) ];
+    for (int j = 0; j < m; j++)
+      women_pref_num[f][j] = men_index[v[j]];
   }
 
-  // Build ranking table for women
-  std::vector<std::vector<int>> women_rank(n, std::vector<int>(n, 0));
+  // Build women_rank
+  std::vector<std::vector<int>> women_rank(n, std::vector<int>(n));
 
   for (int f = 0; f < n; f++) {
     for (int pos = 0; pos < n; pos++) {
       int man = women_pref_num[f][pos];
-      women_rank[f][man] = pos;
+      women_rank[f][man] = pos;     // lower = better
     }
   }
 
   // State arrays
-  std::vector<int> next_choice(n, 0);   // next woman index to propose
-  std::vector<int> matching(n, -1);     // matching[h] = woman
-  // woman f’s fiancé: find by scanning matching
+  std::vector<int> next_choice(n, 0);
+  std::vector<int> matching(n, -1);
 
-  // Buckets: vector of vectors of pairs (man, woman)
-  // bucket[priority] = proposals at that priority
-  std::vector<std::vector<std::array<int,2>>> buckets(n);
+  // Buckets : vector of vector of pairs (h,f)
+  std::vector<std::vector<std::pair<int,int>>> buckets(n);
 
-  // Initialize bucket 0
+  // Initialize bucket #0
   for (int h = 0; h < n; h++) {
     int f = men_pref_num[h][0];
     buckets[0].push_back({h, f});
   }
 
-  // while some bucket is non-empty
+  // Main loop
   while (true) {
-
-    // find first non-empty bucket
+    // Find first non-empty bucket
     int p = -1;
     for (int i = 0; i < n; i++) {
       if (!buckets[i].empty()) {
@@ -92,19 +90,15 @@ DataFrame best_gs_bucket_cpp(List men_prefs,List women_prefs) {
         break;
       }
     }
-
-    if (p == -1) {
-      break;
-    }
-
-    // pop one proposal
+    if (p == -1) break;
+    // Pop proposal
     auto prop = buckets[p].back();
     buckets[p].pop_back();
 
-    int h = prop[0];
-    int f = prop[1];
+    int h = prop.first;
+    int f = prop.second;
 
-    // find current fiancé of f
+    // Find current fiancé of f
     int current = -1;
     for (int i = 0; i < n; i++) {
       if (matching[i] == f) {
@@ -114,34 +108,39 @@ DataFrame best_gs_bucket_cpp(List men_prefs,List women_prefs) {
     }
 
     if (current == -1) {
-      // woman free
+      // free woman -> accept
       matching[h] = f;
+    }
+    else {
+      // woman compares men
+      int rc = women_rank[f][current];
+      int rn = women_rank[f][h];
 
-    } else {
-      int rank_current = women_rank[f][current];
-      int rank_new     = women_rank[f][h];
-
-      if (rank_new < rank_current) {
-        // woman prefers new
+      if (rn < rc) {
+        // replace fiancé
         matching[h] = f;
         matching[current] = -1;
 
         next_choice[current]++;
-        if (next_choice[current] < n) {
-          int f2 = men_pref_num[current][next_choice[current]];
-          buckets[next_choice[current]].push_back({current, f2});
+        int nc = next_choice[current];
+        if (nc < n) {
+          int f2 = men_pref_num[current][nc];
+          buckets[nc].push_back({current, f2});
         }
-      } else {
-        // rejected
+      } 
+      else {
+        // reject h
         next_choice[h]++;
-        if (next_choice[h] < n) {
-          int f2 = men_pref_num[h][next_choice[h]];
-          buckets[next_choice[h]].push_back({h, f2});
+        int nh = next_choice[h];
+        if (nh < n) {
+          int f2 = men_pref_num[h][nh];
+          buckets[nh].push_back({h, f2});
         }
       }
     }
   }
 
+  // Build final output data.frame
   CharacterVector out_women(n);
   for (int h = 0; h < n; h++) {
     int f = matching[h];
