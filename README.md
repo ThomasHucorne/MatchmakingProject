@@ -80,6 +80,7 @@ On this part, there is also a comparison between R and C++ implementation for th
 
 
 ## Project Structure
+```
 MatchmakingProject/
 ├── CHTpackage/              # R package
 │   ├── R/                   # R implementations
@@ -87,6 +88,7 @@ MatchmakingProject/
 │   └── tests/               # Unit tests
 ├── Complexity_reports.Rmd
 └── README.md
+```
 
 ## Authors
 - **Valentin CAPIEU**
